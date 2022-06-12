@@ -29,5 +29,6 @@ export default {
   "DB User":"DB User",
   "DB Name":"DB Name",
   "DB Password":"DB Password",
+  "search":"search"
 
 }
