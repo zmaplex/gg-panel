@@ -1,3 +1,5 @@
+import {USER_INFO} from "src/utils/mutation-types";
+
 export function listResStruct() {
   return {
     "code": 200,
@@ -12,4 +14,18 @@ export function listResStruct() {
     },
     "results": []
   }
+}
+
+export function userInfo() {
+  let data = {
+    token: null,
+    username: null,
+    email: null
+  }
+  let item = window.sessionStorage.getItem(USER_INFO, null)
+  if (item != null) {
+    data = JSON.parse(item)
+  }
+
+  return data
 }

@@ -16,13 +16,19 @@ const request = axios.create({
 
 // 异常拦截处理器
 const errorHandler = (error) => {
-
+  const token = window.sessionStorage.getItem(ACCESS_TOKEN)
+  if (token == null) {
+    window.location.href = "/"
+  }
   return Promise.reject(error)
 }
 
 // request interceptor
 request.interceptors.request.use(config => {
   const token = window.sessionStorage.getItem(ACCESS_TOKEN)
+  // if(token==null){
+  //   window.location.href="/"
+  // }
   // 让每个请求携带自定义 token 请根据实际情况自行修改
   if (token) {
     config.headers['Authorization'] = 'token ' + token

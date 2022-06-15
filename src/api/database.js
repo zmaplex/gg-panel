@@ -12,3 +12,17 @@ export function listDatabase() {
     url: `${api.database}/`
   })
 }
+
+export function createNewDatabase(data) {
+  return request({
+    url: `${api.database}/`,
+    method: "post",
+    data: data
+  })
+}
+export function createDataBaseInstance(pk){
+  return request({
+    url: `${api.database}/${pk}/create_instance/`,
+    method: "post"
+  })
+}

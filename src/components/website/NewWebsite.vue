@@ -1,6 +1,4 @@
 <template>
-
-
   <q-card v-if="ui.card===0" class="card   shadow-0 bg-grey-1 ">
     <q-card-section v-if="ui.card_0.loading" class="text-center">
       <q-circular-progress
@@ -78,8 +76,8 @@
       <q-toggle v-model="ui.card_1.sslToggle" :label="$t('Enable SSL')" color="green" icon="security"></q-toggle>
       <!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="blue-grey" icon="cloud"-->
       <!--                label="Enable Cloud Backup"></q-toggle>-->
-      <q-toggle v-model="ui.card_1.enableBackupToggle" color="grey" icon="cloud_off"
-                label="Enable Local Backup"></q-toggle>
+<!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="grey" icon="cloud_off"-->
+<!--                label="Enable Local Backup"></q-toggle>-->
     </q-card-section>
     <q-card-actions class="justify-between">
       <q-btn color="grey" icon="arrow_back" label="back" @click="ui.card -=1"></q-btn>
@@ -123,9 +121,11 @@
 
 </template>
 
+
 <script>
 import {onMounted, onUnmounted, ref} from "vue";
 import {listApplication} from "src/api/website";
+import {userInfo} from "src/utils/struct";
 
 
 const _ui = {
@@ -207,6 +207,7 @@ export default {
   setup() {
     onMounted(() => {
       console.log("init NewWebsite component")
+      console.log(userInfo())
       ui.value = JSON.parse(JSON.stringify(_ui))
       data.value = JSON.parse(JSON.stringify(_data))
 
