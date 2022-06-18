@@ -21,23 +21,24 @@
       <q-btn v-if="ui.DeleteWebsiteBtn.show" :label="$t('Delete')" color="red" icon="delete"></q-btn>
     </div>
     <div>
-      <q-btn color="white" flat icon="sync" text-color="dark" @click="Public.loadingWebsiteTableData()"></q-btn>
+      <q-btn color="white" flat icon="sync" text-color="dark" @click="requestInstance"></q-btn>
     </div>
   </div>
 
 
   <q-table
 
-    v-model:selected="data.websiteTable.selected"
+    v-model:selected="tableSelected"
     :columns="columns"
-    :loading="ui.websiteTable.loading"
-    :row-key="row => row.id"
-    :rows="data.websiteTable.rows"
-    :rows-per-page-options="[50,100,200,2500]"
-    class="shadow-0"
+    :loading="tableData.pagination.loading"
+    :rows="tableData.results"
+    class="q-pa-none shadow-0"
     color="blue-grey"
     flat
-    selection="multiple">
+    hide-pagination
+    row-key="id"
+    selection="multiple"
+  >
 
     <template v-slot:header-cell="props">
       <q-th class="text-body1 text-purple ">
@@ -50,8 +51,8 @@
     <template v-slot:body-cell-domain="props">
       <q-td :props="props">
         <div class="flex justify-start items-center q-gutter-sm" style="cursor: pointer">
-          <div @click="Public.alert(props.value)">{{ props.value }}</div>
-          <q-icon color="blue-grey" name="public" @click="Public.alert('settings')"></q-icon>
+          <div @click="Public.openDomain(props.row.enableSSL,props.value)">{{ props.value }}</div>
+          <q-icon color="blue-grey" name="public" @click="Public.openDomain(props.row.enableSSL,props.value)"></q-icon>
         </div>
 
       </q-td>
@@ -60,7 +61,7 @@
     <template v-slot:body-cell-application="props">
       <q-td :props="props">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
-          <div @click="Public.alert(props.value)">{{ props.value }}</div>
+          <div @click="Public.alert(props.value)">{{ props.value.replace('Application', '') }}</div>
           <q-icon color="blue-grey" name="o_settings" @click="Public.alert('settings')"></q-icon>
         </div>
 
@@ -68,10 +69,16 @@
     </template>
 
     <template v-slot:body-cell-database="props">
-      <q-td :props="props" @click="Public.alert(props.value.id)">
+      <q-td v-if="props.value" :props="props" @click="Public.alert(props.row.database_id)">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
-          <div>{{ props.value.name }}</div>
+          <div>{{ props.value }}</div>
           <q-icon color="blue-grey" name="o_storage"></q-icon>
+        </div>
+
+      </q-td>
+      <q-td v-else>
+        <div class="flex justify-end items-center q-gutter-sm">
+          <q-icon color="blue-grey" name="o_remove"></q-icon>
         </div>
 
       </q-td>
@@ -79,7 +86,7 @@
     <template v-slot:body-cell-path="props">
       <q-td :props="props" @click="Public.alert(props.value.id)">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
-          <div>{{ props.value.path }}</div>
+          <div>{{ props.value }}</div>
           <q-icon color="blue-grey" name="o_folder"></q-icon>
         </div>
 
@@ -89,7 +96,7 @@
     <template v-slot:body-cell-ssl="props">
       <q-td :props="props" @click="Public.alert(props.value)">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
-          <q-toggle :model-value="props.row.ssl" checkedIcon="enhanced_encryption"
+          <q-toggle :model-value="props.row.ssl_enable" checkedIcon="enhanced_encryption"
                     color="green"
                     unchecked-icon="no_encryption"
                     @click="Public.switchSSL(props.row)"></q-toggle>
@@ -99,33 +106,42 @@
     </template>
 
   </q-table>
+  <div v-if="tableData.pagination.total_pages>0" class="row justify-center q-mt-md">
+    <q-pagination
+      v-model="tableData.pagination.current_page"
+      :max="tableData.pagination.total_pages"
+      color="grey-8"
+      direction-links
+      max-pages="10"
+      size="md"
+      @update:model-value="onUpdatePagination"
+    />
+  </div>
+
 
 </template>
 
 <script>
-import {onMounted, ref, watchEffect} from "vue";
-import {faker} from "@faker-js/faker";
+import {onMounted, ref, watchEffect, nextTick} from "vue";
 import NewWebsite from "components/website/NewWebsite";
 import {useQuasar} from "quasar";
+import {listResStruct} from "src/utils/struct";
+
+import {listWebsite} from "src/api/website";
+import {openURL} from 'quasar'
 
 let $q;
 
 const columns = [
 
-  {name: 'domain', label: 'Domain', align: 'left', field: 'name',},
+  {name: 'domain', label: 'Domain', align: 'left', field: 'domain',},
   {name: 'application', label: 'Application', field: 'application', align: 'right'},
-  {name: 'database', label: 'Database', field: 'database'},
-  {name: 'path', label: 'Path', field: 'path'},
-  {name: 'ssl', label: 'SSL', field: 'ssl'},
+  {name: 'database', label: 'Database', field: 'database_name'},
+  {name: 'path', label: 'Path', field: 'index_root'},
+  {name: 'ssl', label: 'SSL', field: 'ssl_enable'},
   {name: 'status', label: 'Status', field: 'status'}
 ]
 
-const data = ref({
-  websiteTable: {
-    rows: [],
-    selected: []
-  }
-})
 
 const ui = ref({
   websiteTable: {
@@ -145,44 +161,9 @@ const ui = ref({
   }
 })
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-const Private = {
-  _loadingWebsiteTableData: async function () {
-    ui.value.websiteTable.loading = true
-    let _data = []
-    for (let i = 0; i <= 10000; i++) {
-      let domain = faker.internet.domainName()
-      let _item = {
-        id: i,
-        name: domain,
-        application: faker.internet.domainWord(),
-        database: {
-          id: i,
-          name: domain.replaceAll(".", "_")
-        },
-        path: {
-          id: 1,
-          path: '/var/www/' + domain
-        },
-        ssl: faker.datatype.boolean(),
-        status: true
-      }
-      _data.push(_item)
-
-    }
-    await sleep(1000)
-    data.value.websiteTable.rows = _data
-    ui.value.websiteTable.loading = false
-  },
-
-}
 
 const Public = {
-  loadingWebsiteTableData: function () {
-    Private._loadingWebsiteTableData()
 
-  },
   alert: function (obj) {
     alert(obj)
   },
@@ -196,7 +177,6 @@ const Public = {
     }
   },
   switchSSL: function (row) {
-
     $q.loading.show({
       boxClass: 'apple-card ',
       spinnerColor: 'blue-grey',
@@ -206,11 +186,17 @@ const Public = {
     // hiding in 3s
     let timer = setTimeout(() => {
       $q.loading.hide()
-      row.ssl = !row.ssl
+      row.ssl_enable = !row.ssl_enable
       timer = void 0
     }, 500)
+  },
+  openDomain(enableSSL, domain) {
+    let url = "http://" + domain
+    if (enableSSL) {
+      url = "https://" + domain
+    }
+    openURL(url)
   }
-
 
 
 }
@@ -221,19 +207,58 @@ export default {
   setup() {
     $q = useQuasar()
 
+    const tableData = ref(listResStruct())
+    const params = ref({
+      'page': 1,
+      'search': null
+    })
+    const tableSelected = ref([])
+
     watchEffect(() => {
-      let _bool = data.value.websiteTable.selected.length === 1
+      let _bool = tableSelected.value.length === 1
       ui.value.DeleteWebsiteBtn.show = _bool
       ui.value.StopWebsiteBtn.show = _bool
       ui.value.StartWebsiteBtn.show = _bool
     })
+
+    function onUpdatePagination(page) {
+      params.value.page = page
+      requestInstance()
+    }
+
+    function onSearch(key) {
+      params.value.search = key
+      requestInstance()
+    }
+
+    function requestInstance() {
+      // 终点改写这里
+      tableData.value.pagination.loading = true
+      // requestXXXX 替换为实际的函数
+      listWebsite(params.value).then(res => {
+        tableData.value = res
+      }).catch(err => {
+
+      }).finally(() => {
+        nextTick(() => {
+          tableData.value.pagination.loading = false
+        })
+      })
+    }
+
     onMounted(() => {
-      Public.loadingWebsiteTableData()
+
+      tableData.value.data = []
+      nextTick(() => {
+        requestInstance()
+      })
 
     })
 
+
     return {
-      ui, data, columns, Public
+      tableData, params, tableSelected, onSearch, onUpdatePagination, columns,
+      ui, Public, requestInstance, openURL
     }
   }
 }

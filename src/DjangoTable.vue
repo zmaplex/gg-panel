@@ -4,7 +4,7 @@
     <q-table v-model:selected="tableSelected"
              :columns="columns"
              :loading="tableData.pagination.loading"
-             :rows="tableData.data"
+             :rows="tableData.results"
              class="q-pa-none shadow-0"
              hide-pagination
              row-key="id"

@@ -22,7 +22,7 @@
           color="blue-grey"
           inline
           no-caps
-          @update:model-value="Public.onApplicationHelp"
+          @update:model-value="Public.onSelectApplication"
         >
           <template v-slot:label="opt">
             <div class="row items-center">
@@ -76,8 +76,8 @@
       <q-toggle v-model="ui.card_1.sslToggle" :label="$t('Enable SSL')" color="green" icon="security"></q-toggle>
       <!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="blue-grey" icon="cloud"-->
       <!--                label="Enable Cloud Backup"></q-toggle>-->
-<!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="grey" icon="cloud_off"-->
-<!--                label="Enable Local Backup"></q-toggle>-->
+      <!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="grey" icon="cloud_off"-->
+      <!--                label="Enable Local Backup"></q-toggle>-->
     </q-card-section>
     <q-card-actions class="justify-between">
       <q-btn color="grey" icon="arrow_back" label="back" @click="ui.card -=1"></q-btn>
@@ -90,7 +90,7 @@
     <q-card-section class="flex justify-between">
 
       <div class="text-body1">
-        {{ ui.application.name }}
+        {{ ui.application }}
       </div>
 
     </q-card-section>
@@ -171,11 +171,13 @@ const data = ref(_data)
 
 const Public = {
 
-  onApplicationHelp(name) {
-    console.log(name)
+  onSelectApplication(name) {
+    console.log({onSelectApplication:name})
     let app = ui.value.card_0.application
     ui.value.card_0.description = app.data[name].info.description
-    ui.value.application.name = name
+
+    ui.value.application.key = name
+    ui.value.application.name = app.data[name].info.name
     ui.value.application.app = app.data[name].attr
     console.log(ui.value.application.app)
   },

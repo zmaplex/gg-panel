@@ -3,7 +3,7 @@ import {ACCESS_TOKEN} from "src/utils/mutation-types";
 
 const api = {
   application: '/api/Application',
-  website:'/api/Website'
+  website: '/api/Website'
 
 }
 
@@ -14,6 +14,14 @@ export function listApplication() {
   })
 }
 
+export function listWebsite(params) {
+  return request({
+    url: api.website,
+    params: params
+  })
+
+}
+
 export function createWebsite(data) {
   return request({
     url: `${api.website}/`,
@@ -22,13 +30,11 @@ export function createWebsite(data) {
   })
 }
 
-export function attachDatabase(dbPk){
+export function attachDatabase(dbPk) {
   return request({
     url: `${api.website}/`,
-    method:'patch',
-    data:{
-
-    }
+    method: 'patch',
+    data: {}
   })
 
 }
