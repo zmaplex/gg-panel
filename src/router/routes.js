@@ -10,7 +10,11 @@ const routes = [
     component: () => import('layouts/DebugLayout.vue'),
     children: [{path: '', component: () => import('pages/DemoPage.vue')}]
   },
+  {
+    path: '/dev',
+    component: () => import('pages/SinglePage/DevelopPage.vue'),
 
+  },
   {
     path: '/Main',
     component: () => import('layouts/MainLayout.vue'),

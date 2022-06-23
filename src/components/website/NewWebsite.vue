@@ -53,27 +53,30 @@
     </q-card-section>
 
     <q-card-section class="q-gutter-sm">
-      <q-input v-model="data.form.domain" :label="$t('domain')" color="dark"></q-input>
-      <q-input v-model="data.form.domain" :label="$t('directory')" color="dark" readonly></q-input>
+      <q-input v-model="data.form.websiteForm.name" :label="$t('name')" color="dark" dense></q-input>
+      <q-input v-model="data.form.websiteForm.domain" :label="$t('domain')" color="dark" dense></q-input>
+      <q-input v-model="data.form.websiteForm.index_root" :label="$t('directory')" color="dark" dense
+               readonly></q-input>
 
 
     </q-card-section>
     <q-card-section v-if="ui.card_1.createDatabaseToggle" class="q-gutter-sm">
       <div>Create DataBase</div>
-      <q-input v-model="data.form.domain" :label="$t('DB Name')" color="dark"></q-input>
-      <q-input v-model="data.form.domain" :label="$t('DB User')" color="dark"></q-input>
-      <q-input v-model="data.form.domain" :label="$t('DB Password')" color="dark"></q-input>
+      <q-input v-model="data.form.dataBaseForm.name" :label="$t('DB Name')" color="dark" dense></q-input>
+      <q-input v-model="data.form.dataBaseForm.username" :label="$t('DB User')" color="dark" dense></q-input>
+      <q-input v-model="data.form.dataBaseForm.password" :label="$t('DB Password')" color="dark" dense></q-input>
 
     </q-card-section>
     <q-card-section v-if="ui.card_1.sslToggle">
       <div>{{ $t('Enable SSL') }}</div>
       <q-select v-model="ui.card_1.sslOption.model" :label="$t('Providers')" :options="ui.card_1.sslOption.options"
-                color="dark"/>
+                color="dark"
+                dense/>
     </q-card-section>
     <q-card-section class="flex q-gutter-md justify-end">
-      <q-toggle v-model="ui.card_1.createDatabaseToggle" :label="$t('Create DataBase')" color="dark"
+      <q-toggle v-model="ui.card_1.createDatabaseToggle" :label="$t('Create DataBase')" color="dark" dense
                 icon="storage"></q-toggle>
-      <q-toggle v-model="ui.card_1.sslToggle" :label="$t('Enable SSL')" color="green" icon="security"></q-toggle>
+      <q-toggle v-model="ui.card_1.sslToggle" :label="$t('Enable SSL')" color="green" dense icon="security"></q-toggle>
       <!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="blue-grey" icon="cloud"-->
       <!--                label="Enable Cloud Backup"></q-toggle>-->
       <!--      <q-toggle v-model="ui.card_1.enableBackupToggle" color="grey" icon="cloud_off"-->
@@ -87,19 +90,17 @@
   </q-card>
 
   <q-card v-if="ui.card===2" class="card shadow-0 bg-grey-1 q-pa-sm ">
-    <q-card-section class="flex justify-between">
-
-      <div class="text-body1">
-        {{ ui.application }}
+    <q-card-section class="flex justify-between ">
+      <div class="text-body1  ">
+        {{ ui.application.name }}
       </div>
-
     </q-card-section>
 
     <q-card-section class="q-gutter-sm">
-      <div v-for="item in ui.application.app" :key="item.name">
-        <q-input v-model="data.applicationForm[item.name]" :hint="item.description.default" :label="item.label.default"
+      <div v-for="item in ui.application.parameter" :key="item.name">
+        <q-input v-model="data.form.websiteForm.application_config[item.name]" :hint="item.description.default"
+                 :label="item.label.default"
                  color="dark"></q-input>
-
       </div>
 
 
@@ -112,7 +113,7 @@
     </q-card-section>
     <q-card-actions class="justify-between">
       <q-btn color="grey" icon="arrow_back" label="back" @click="ui.card-=1"></q-btn>
-      <q-btn color="blue" icon="done" label="Commit"></q-btn>
+      <q-btn color="blue" icon="done" label="Commit" @click="commitFormData"></q-btn>
 
     </q-card-actions>
 
@@ -123,16 +124,43 @@
 
 
 <script>
-import {onMounted, onUnmounted, ref} from "vue";
-import {listApplication} from "src/api/website";
+import {computed, onMounted, onUnmounted, ref, toRaw, watchEffect} from "vue";
+import {createWebsite, listApplication} from "src/api/website";
 import {userInfo} from "src/utils/struct";
+import {generateDBPassword} from "src/utils/generate";
+import {hideLoading, showLoading} from "src/utils/loading";
+import {useQuasar} from "quasar";
+import {createDataBaseInstance, createNewDatabase} from "src/api/database";
 
 
 const _ui = {
   card: 0,
   application: {
     name: "StaticPages",
-    app: {},
+    key: "NginxApplication",
+    parameter: [{
+      "attr": {},
+      "name": "name",
+      "label": {"default": "title", "en-US": "title"},
+      "value": "New website!",
+      "required": true,
+      "description": {"default": "your website title", "en-US": "your website title"}
+    }, {
+      "attr": {},
+      "name": "text",
+      "label": {"default": "text", "en-US": "text"},
+      "required": true,
+      "value": "与君初相识，犹如故人归。嗨，别来无恙！ <br> Hello World！",
+      "description": {"default": "what about do u you say?", "en-US": "what about do u you say?"}
+    }, {
+      "attr": {},
+      "name": "email",
+      "label": {"default": "email", "en-US": "email"},
+      "value": null,
+      "required": false,
+      "description": {"default": "your contact information", "en-US": "your contact information"}
+    }],
+
   },
   card_0: {
     loading: true,
@@ -160,9 +188,20 @@ const ui = ref(_ui)
 
 const _data = {
   form: {
+    websiteForm: {
+      name: '',
+      domain: '',
+      ssl_enable: false,
+      index_root: null,
+      application_config: {}
+    },
+    dataBaseForm: {
+      "name": "",
+      "username": "",
+      "password": "",
+    },
     domain: "",
     path: "",
-
   },
   applicationForm: {}
 }
@@ -172,14 +211,19 @@ const data = ref(_data)
 const Public = {
 
   onSelectApplication(name) {
-    console.log({onSelectApplication:name})
+    console.log({onSelectApplication: name})
     let app = ui.value.card_0.application
     ui.value.card_0.description = app.data[name].info.description
 
     ui.value.application.key = name
     ui.value.application.name = app.data[name].info.name
-    ui.value.application.app = app.data[name].attr
-    console.log(ui.value.application.app)
+    ui.value.application.parameter = app.data[name].attr
+
+    for (let item of ui.value.application.parameter) {
+      data.value.form.websiteForm.application_config[item.name] = item.value
+    }
+
+
   },
 
   requestListApplication() {
@@ -207,6 +251,7 @@ const Public = {
 export default {
   name: "NewWebsite",
   setup() {
+    const $q = useQuasar()
     onMounted(() => {
       console.log("init NewWebsite component")
       console.log(userInfo())
@@ -219,9 +264,54 @@ export default {
     onUnmounted(() => {
 
     })
+    let index_root = ref('')
+
+    watchEffect(() => {
+      let websiteForm = data.value.form.websiteForm
+      if (websiteForm.domain) {
+        websiteForm.index_root = '/var/www/' + websiteForm.domain
+      } else {
+        websiteForm.index_root = ''
+      }
+
+      websiteForm.ssl_enable = ui.value.card_1.sslToggle
+
+
+      let databaseForm = data.value.form.dataBaseForm
+
+      databaseForm.name = 'DB_' + websiteForm.name
+      databaseForm.username = generateDBPassword(12)
+      databaseForm.password = generateDBPassword(12)
+
+
+    })
+
+    function commitFormData() {
+      console.log(toRaw(data.value.form))
+
+      showLoading($q)
+      createWebsite(data.value.form.websiteForm).then(async res => {
+        console.log({"createWebsite": res})
+        let websiteId = res.id
+        let database = toRaw(data.value.form.dataBaseForm)
+        database["website"] = websiteId
+
+        if (ui.value.card_1.createDatabaseToggle) {
+          let dbRes = await createNewDatabase(database)
+          console.log({'dbRes': dbRes})
+          await createDataBaseInstance(dbRes.id)
+        }
+
+
+      }).catch(err => {
+        console.log({"commitFormData": err})
+      }).finally(() => {
+        hideLoading($q)
+      })
+    }
 
     return {
-      ui, data, Public
+      ui, data, Public, index_root, commitFormData
     }
   }
 }

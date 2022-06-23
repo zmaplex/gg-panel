@@ -29,7 +29,6 @@
         :max="tableData.pagination.total_pages"
         color="grey-8"
         direction-links
-        max-pages="10"
         size="md"
         @update:model-value="onUpdatePagination"
       />

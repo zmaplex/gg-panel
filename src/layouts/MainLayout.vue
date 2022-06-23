@@ -15,7 +15,7 @@
 
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>Alpha v{{ pkJson.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -49,6 +49,7 @@
 <script>
 import {defineComponent, ref} from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
+import pkJson from '../../package.json'
 
 const linksList = [
   {
@@ -119,7 +120,8 @@ export default defineComponent({
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value
-      }
+      },
+      pkJson
     }
   }
 })

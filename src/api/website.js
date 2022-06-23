@@ -22,6 +22,14 @@ export function listWebsite(params) {
 
 }
 
+export function putWebsite(instance, data) {
+  return request({
+    url: `${api.website}/${instance}/`,
+    method: 'put',
+    data: data
+  })
+}
+
 export function createWebsite(data) {
   return request({
     url: `${api.website}/`,

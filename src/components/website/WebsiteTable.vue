@@ -50,7 +50,7 @@
 
     <template v-slot:body-cell-domain="props">
       <q-td :props="props">
-        <div class="flex justify-start items-center q-gutter-sm" style="cursor: pointer">
+        <div class="flex justify-start items-center q-gutter-sm no-wrap" style="cursor: pointer">
           <div @click="Public.openDomain(props.row.enableSSL,props.value)">{{ props.value }}</div>
           <q-icon color="blue-grey" name="public" @click="Public.openDomain(props.row.enableSSL,props.value)"></q-icon>
         </div>
@@ -61,7 +61,7 @@
     <template v-slot:body-cell-application="props">
       <q-td :props="props">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
-          <div @click="Public.alert(props.value)">{{ props.value.replace('Application', '') }}</div>
+          <div>{{ props.value ? props.value.replace('Application', '') : '' }}</div>
           <q-icon color="blue-grey" name="o_settings" @click="Public.alert('settings')"></q-icon>
         </div>
 
@@ -85,7 +85,7 @@
     </template>
     <template v-slot:body-cell-path="props">
       <q-td :props="props" @click="Public.alert(props.value.id)">
-        <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
+        <div class="flex justify-end items-center q-gutter-sm no-wrap" style="cursor: pointer">
           <div>{{ props.value }}</div>
           <q-icon color="blue-grey" name="o_folder"></q-icon>
         </div>
@@ -99,7 +99,7 @@
           <q-toggle :model-value="props.row.ssl_enable" checkedIcon="enhanced_encryption"
                     color="green"
                     unchecked-icon="no_encryption"
-                    @click="Public.switchSSL(props.row)"></q-toggle>
+                    @click="requestPutWebsite(props.row)"></q-toggle>
         </div>
 
       </q-td>
@@ -112,7 +112,6 @@
       :max="tableData.pagination.total_pages"
       color="grey-8"
       direction-links
-      max-pages="10"
       size="md"
       @update:model-value="onUpdatePagination"
     />
@@ -122,13 +121,14 @@
 </template>
 
 <script>
-import {onMounted, ref, watchEffect, nextTick} from "vue";
+import {onMounted, ref, watchEffect, nextTick, toRaw} from "vue";
 import NewWebsite from "components/website/NewWebsite";
 import {useQuasar} from "quasar";
 import {listResStruct} from "src/utils/struct";
 
-import {listWebsite} from "src/api/website";
+import {listWebsite, patchWebsite, putWebsite} from "src/api/website";
 import {openURL} from 'quasar'
+import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
 
 let $q;
 
@@ -176,27 +176,14 @@ const Public = {
       return "justify-end"
     }
   },
-  switchSSL: function (row) {
-    $q.loading.show({
-      boxClass: 'apple-card ',
-      spinnerColor: 'blue-grey',
-      spinnerSize: "64"
-    })
 
-    // hiding in 3s
-    let timer = setTimeout(() => {
-      $q.loading.hide()
-      row.ssl_enable = !row.ssl_enable
-      timer = void 0
-    }, 500)
-  },
   openDomain(enableSSL, domain) {
     let url = "http://" + domain
     if (enableSSL) {
       url = "https://" + domain
     }
     openURL(url)
-  }
+  },
 
 
 }
@@ -238,11 +225,25 @@ export default {
       listWebsite(params.value).then(res => {
         tableData.value = res
       }).catch(err => {
-
+        errorLoading($q, err)
       }).finally(() => {
         nextTick(() => {
           tableData.value.pagination.loading = false
         })
+      })
+    }
+
+    function requestPutWebsite(row) {
+      row.ssl_enable = !row.ssl_enable
+      let data = toRaw(row)
+      showLoading($q)
+      putWebsite(data.id+1, data).then(res => {
+        console.log({'putWebsite': res})
+      }).catch(err => {
+        errorLoading($q, err)
+        console.error({'putWebsite': err})
+      }).finally(() => {
+        hideLoading($q)
       })
     }
 
@@ -254,11 +255,9 @@ export default {
       })
 
     })
-
-
     return {
       tableData, params, tableSelected, onSearch, onUpdatePagination, columns,
-      ui, Public, requestInstance, openURL
+      ui, Public, requestInstance, requestPutWebsite,
     }
   }
 }
