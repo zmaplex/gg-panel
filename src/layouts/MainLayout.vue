@@ -77,8 +77,8 @@ const linksList = [
 
   },
   {
-    title: 'Database',
-    caption: 'Database',
+    title: 'database',
+    caption: 'database',
     route: {
       name: 'database'
     },

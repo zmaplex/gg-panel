@@ -22,6 +22,13 @@ export function listWebsite(params) {
 
 }
 
+export function deleteWebsite(pk) {
+  return request({
+    url: `${api.website}/${pk}/`,
+    method: 'delete'
+  })
+}
+
 export function putWebsite(instance, data) {
   return request({
     url: `${api.website}/${instance}/`,

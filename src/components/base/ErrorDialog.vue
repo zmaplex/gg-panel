@@ -1,5 +1,5 @@
 <template>
-  <q-dialog >
+  <q-dialog>
     <q-card class="apple-card card ">
       <q-card-section class="q-pa-sm flex justify-between items-center content-center text-body1  bg-warning ">
         <span class="text-capitalize"> {{ $t('oops') }}！</span>
@@ -30,9 +30,19 @@ export default {
     }
   },
   setup(props) {
+
+    let response = ''
+    if (props.err.hasOwnProperty('response')) {
+      response = JSON.stringify(props.err.response, null, 2)
+    } else if (props.err) {
+      response = JSON.stringify(props.err, null, 2)
+    } else {
+      response = '{}'
+    }
+
     let data = ref({
       'message': props.err.message,
-      'response': JSON.stringify(props.err.response ? props.err.response : {}, null, 2)
+      'response': response
     })
     return {
       props, data

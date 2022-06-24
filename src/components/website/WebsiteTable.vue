@@ -14,11 +14,12 @@
   </q-dialog>
   <div class="flex justify-between">
     <div class="q-gutter-sm">
-      <q-btn :label="$t('New website')" color="blue" icon="add" @click="ui.NewWebsiteDialog.show = true"></q-btn>
-      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('Start')" color="green" icon="play_arrow"></q-btn>
-      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('ReStart')" color="blue-grey" icon="restart_alt"></q-btn>
-      <q-btn v-if="ui.StopWebsiteBtn.show" :label="$t('Stop')" color="grey" icon="stop"></q-btn>
-      <q-btn v-if="ui.DeleteWebsiteBtn.show" :label="$t('Delete')" color="red" icon="delete"></q-btn>
+      <q-btn :label="$t('new website')" color="blue" icon="add" @click="ui.NewWebsiteDialog.show = true"></q-btn>
+      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('start')" color="green" icon="play_arrow"></q-btn>
+      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('reStart')" color="blue-grey" icon="restart_alt"></q-btn>
+      <q-btn v-if="ui.StopWebsiteBtn.show" :label="$t('stop')" color="grey" icon="stop"></q-btn>
+      <q-btn v-if="ui.DeleteWebsiteBtn.show" :label="$t('delete')" color="red" icon="delete"
+             @click="requestDeleteWebsite"></q-btn>
     </div>
     <div>
       <q-btn color="white" flat icon="sync" text-color="dark" @click="requestInstance"></q-btn>
@@ -43,7 +44,7 @@
     <template v-slot:header-cell="props">
       <q-th class="text-body1 text-purple ">
         <q-td :class="`flex ${Public.formatColumnAlignCss(props.col.align)} no-wrap`" :props="props">
-          {{ $t(props.col.label) }}
+          {{ $t(props.col.label.toLowerCase()) }}
         </q-td>
       </q-th>
     </template>
@@ -51,8 +52,8 @@
     <template v-slot:body-cell-domain="props">
       <q-td :props="props">
         <div class="flex justify-start items-center q-gutter-sm no-wrap" style="cursor: pointer">
-          <div @click="Public.openDomain(props.row.enableSSL,props.value)">{{ props.value }}</div>
-          <q-icon color="blue-grey" name="public" @click="Public.openDomain(props.row.enableSSL,props.value)"></q-icon>
+          <div @click="Public.opendomain(props.row.enableSSL,props.value)">{{ props.value }}</div>
+          <q-icon color="blue-grey" name="public" @click="Public.opendomain(props.row.enableSSL,props.value)"></q-icon>
         </div>
 
       </q-td>
@@ -126,9 +127,9 @@ import NewWebsite from "components/website/NewWebsite";
 import {useQuasar} from "quasar";
 import {listResStruct} from "src/utils/struct";
 
-import {listWebsite, patchWebsite, putWebsite} from "src/api/website";
+import {deleteWebsite, listWebsite, patchWebsite, putWebsite} from "src/api/website";
 import {openURL} from 'quasar'
-import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
+import {errorLoading, hideLoading, requestLoading, showLoading} from "src/utils/loading";
 
 let $q;
 
@@ -177,7 +178,7 @@ const Public = {
     }
   },
 
-  openDomain(enableSSL, domain) {
+  opendomain(enableSSL, domain) {
     let url = "http://" + domain
     if (enableSSL) {
       url = "https://" + domain
@@ -233,17 +234,30 @@ export default {
       })
     }
 
+    function requestDeleteWebsite() {
+      showLoading($q)
+      deleteWebsite(tableSelected.value[0].id).then(res => {
+      }).catch(err => {
+        errorLoading($q, err)
+      }).finally(() => {
+        hideLoading($q)
+        requestInstance()
+      })
+
+    }
+
     function requestPutWebsite(row) {
       row.ssl_enable = !row.ssl_enable
       let data = toRaw(row)
       showLoading($q)
-      putWebsite(data.id+1, data).then(res => {
+      putWebsite(data.id + 1, data).then(res => {
         console.log({'putWebsite': res})
       }).catch(err => {
         errorLoading($q, err)
         console.error({'putWebsite': err})
       }).finally(() => {
         hideLoading($q)
+        requestInstance()
       })
     }
 
@@ -257,7 +271,7 @@ export default {
     })
     return {
       tableData, params, tableSelected, onSearch, onUpdatePagination, columns,
-      ui, Public, requestInstance, requestPutWebsite,
+      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite
     }
   }
 }

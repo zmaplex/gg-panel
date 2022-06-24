@@ -26,6 +26,6 @@ export function errorLoading($q, err) {
 }
 
 export function hideLoading($q) {
-
   $q.loading.hide()
 }
+

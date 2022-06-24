@@ -48,7 +48,7 @@
 
   <q-card v-if="ui.card===1" class="card shadow-0 bg-grey-1 q-pa-sm ">
     <q-card-section class="flex justify-between ">
-      <div class="text-body1">{{ $t('Basic') }}</div>
+      <div class="text-body1 text-capitalize">{{ $t('basic') }}</div>
 
     </q-card-section>
 
@@ -142,7 +142,7 @@ const _ui = {
       "attr": {},
       "name": "name",
       "label": {"default": "title", "en-US": "title"},
-      "value": "New website!",
+      "value": "new website!",
       "required": true,
       "description": {"default": "your website title", "en-US": "your website title"}
     }, {
