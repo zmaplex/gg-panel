@@ -1,13 +1,10 @@
 <template>
   <q-page class="flex flex-center bg-blue-grey-1">
-    <q-card class="flex flex-center card-size apple-card">
-      <q-card-section >
-        <div id="terminal" ></div>
-
-      </q-card-section>
-    </q-card>
+    <div class="q-pa-sm apple-card">
+      <div class="xterm" id="terminal"></div>
+    </div>
     <q-footer>
-      <link rel="stylesheet" href="/static/css/xterm.css"/>
+      <link href="/static/css/xterm.css" rel="stylesheet"/>
     </q-footer>
   </q-page>
 
@@ -18,31 +15,42 @@ import {Terminal} from 'xterm';
 import {onMounted} from "vue";
 import {WebLinksAddon} from 'xterm-addon-web-links';
 import {FitAddon} from 'xterm-addon-fit';
+import {ACCESS_TOKEN} from "src/utils/mutation-types";
+import {Cookies} from "quasar";
 
 const term = new Terminal();
 term.loadAddon(new WebLinksAddon());
 term.loadAddon(new FitAddon());
-const terminalSocket = new WebSocket(
-  'ws://'
-  + "127.0.0.1:8000"
-  + '/ws/terminal/?token=12761ce542d6e9206c2be76f4614244c5881b50d'
-);
+
 
 function initTerminal() {
   let element = document.getElementById('terminal')
   term.open(element);
   term.writeln('try connecting remote server...')
+  let url = 'ws://'
+    + "35.78.82.158:8000"
+    + '/ws/terminal/?token='
+    + Cookies.get(ACCESS_TOKEN)
+
+  const terminalSocket = new WebSocket(url);
+
+  terminalSocket.addEventListener('error', function (event) {
+    console.log('WebSocket error: ', event);
+    term.writeln("无法建立 WebSocket 连接。")
+  });
   terminalSocket.onopen = function (e) {
     console.log(e)
-
   }
   terminalSocket.onclose = function (e) {
-    //term.writeln("连接被远程主机强制关闭")
+    term.writeln("连接被远程主机强制关闭")
   }
   terminalSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     console.log(data)
-    if(data.code===201){
+    if (data.code === 201) {
+      terminalSocket.send(JSON.stringify({
+        'message': ''
+      }))
       term.clear()
     }
     term.write(data.message);
@@ -76,6 +84,8 @@ export default {
   min-height: 360px;
   min-width: 360px;
 }
+
+
 
 
 </style>

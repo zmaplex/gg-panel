@@ -9,8 +9,11 @@
         <div class="text-capitalize">
           {{ $t('message') }} : {{ data.message }}
         </div>
+
         <textarea v-model="data.response" class="err_textarea" readonly rows="12">
             </textarea>
+
+
       </q-card-section>
       <q-card-actions></q-card-actions>
     </q-card>
@@ -18,7 +21,6 @@
 </template>
 
 <script>
-import {useDialogPluginComponent} from 'quasar'
 import {ref} from "vue";
 
 export default {

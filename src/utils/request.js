@@ -1,7 +1,7 @@
 import axios from 'axios'
-import {Notify} from 'quasar'
-import {ACCESS_TOKEN} from "src/utils/mutation-types";
 
+import {ACCESS_TOKEN} from "src/utils/mutation-types";
+import { Cookies } from 'quasar'
 
 if (process.env.DEV) {
   console.log(`I'm on a development build`)
@@ -16,7 +16,9 @@ const request = axios.create({
 
 // 异常拦截处理器
 const errorHandler = (error) => {
-  const token = window.sessionStorage.getItem(ACCESS_TOKEN)
+  const token = Cookies.get(ACCESS_TOKEN)
+
+
   if (token == null) {
     window.location.href = "/"
   }
@@ -25,7 +27,7 @@ const errorHandler = (error) => {
 
 // request interceptor
 request.interceptors.request.use(config => {
-  const token = window.sessionStorage.getItem(ACCESS_TOKEN)
+  const token = Cookies.get(ACCESS_TOKEN)
   // if(token==null){
   //   window.location.href="/"
   // }

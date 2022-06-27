@@ -1,33 +1,9 @@
 <template>
-  <q-page class="q-pa-sm q-gutter-md bg-blue-grey-1 ">
+  <q-page class="q-pa-md q-gutter-md bg-blue-grey-1 ">
 
     <SystemStatus></SystemStatus>
-    <q-card class="shadow-0 ">
-      <q-card-section class="text-uppercase ">
-        {{ $t("overview") }}
-      </q-card-section>
-      <q-card-section>
-        <div class="flex q-gutter-md ">
-          <div class="apple-card-hover q-pa-md text-center" style="  background: #f5f5f5 !important;min-width: 128px">
-            <div class="text-caption text-italic text-accent">{{ $t('website') }}</div>
-            <div class="q-mt-sm text-body1">18</div>
-          </div>
-          <div class="apple-card-hover q-pa-md text-center" style="  background: #f5f5f5 !important;min-width: 128px">
-            <div class="text-caption text-italic text-accent">{{ $t('website') }}</div>
-            <div class="q-mt-sm text-body1">18</div>
-          </div>
-          <div class="apple-card-hover q-pa-md text-center" style="  background: #f5f5f5 !important;min-width: 128px">
-            <div class="text-caption text-italic text-accent">{{ $t('website') }}</div>
-            <div class="q-mt-sm text-body1">18</div>
-          </div>
-          <div class="apple-card-hover q-pa-md text-center" style="  background: #f5f5f5 !important;min-width: 128px">
-            <div class="text-caption text-italic text-accent">{{ $t('website') }}</div>
-            <div class="q-mt-sm text-body1">18</div>
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
-    <q-card class="shadow-0 ">
+
+    <q-card  class="shadow-0 ">
       <q-card-section class="text-uppercase ">
         {{ $t("charts") }}
       </q-card-section>

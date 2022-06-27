@@ -34,5 +34,9 @@ export default {
   "search": "search",
   "name": "name",
   "oops": "oops",
-  'message': 'message'
+  'message': 'message',
+  'linux':{
+    'load average':'load average',
+    'disk':'disk'
+  }
 }
