@@ -10,10 +10,8 @@
           {{ $t('message') }} : {{ data.message }}
         </div>
 
-        <textarea v-model="data.response" class="err_textarea" readonly rows="12">
+        <textarea v-model="data.response" class=" err_textarea" readonly rows="12">
             </textarea>
-
-
       </q-card-section>
       <q-card-actions></q-card-actions>
     </q-card>
@@ -64,7 +62,7 @@ export default {
 
 .err_textarea {
   margin-top: 8px;
-  background-color: black;
+  background-color: lightgrey;
   color: red;
   font-size: 0.75rem;
   outline: none;

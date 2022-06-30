@@ -22,7 +22,7 @@
     <q-drawer
       v-model="leftDrawerOpen"
       :width="256"
-      bordered
+      class="bg-blue-grey-1"
       show-if-above
     >
       <q-list>

@@ -22,10 +22,23 @@ export function listWebsite(params) {
 
 }
 
+export function getWebsite(pk){
+  return request({
+    url: `${api.website}/${pk}/`
+  })
+}
+
 export function deleteWebsite(pk) {
   return request({
     url: `${api.website}/${pk}/`,
     method: 'delete'
+  })
+}
+
+export function getWebsiteCertificate(pk){
+  return request({
+    url: `${api.website}/${pk}/get_ssl_info/`,
+
   })
 }
 

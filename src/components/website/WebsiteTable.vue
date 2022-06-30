@@ -15,9 +15,8 @@
   <div class="flex justify-between">
     <div class="q-gutter-sm">
       <q-btn :label="$t('new website')" color="blue" icon="add" @click="ui.NewWebsiteDialog.show = true"></q-btn>
-      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('start')" color="green" icon="play_arrow"></q-btn>
-      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('reStart')" color="blue-grey" icon="restart_alt"></q-btn>
-      <q-btn v-if="ui.StopWebsiteBtn.show" :label="$t('stop')" color="grey" icon="stop"></q-btn>
+      <q-btn v-if="ui.StartWebsiteBtn.show" @click="requestApplicationAction('start')" :label="$t('start')" color="green" icon="play_arrow"></q-btn>
+      <q-btn v-if="ui.StopWebsiteBtn.show"  @click="requestApplicationAction('stop')"  :label="$t('stop')" color="grey" icon="stop"></q-btn>
       <q-btn v-if="ui.DeleteWebsiteBtn.show" :label="$t('delete')" color="red" icon="delete"
              @click="requestDeleteWebsite"></q-btn>
     </div>
@@ -122,14 +121,14 @@
 </template>
 
 <script>
-import {onMounted, ref, watchEffect, nextTick, toRaw} from "vue";
+import {nextTick, onMounted, ref, toRaw, watchEffect} from "vue";
 import NewWebsite from "components/website/NewWebsite";
-import {useQuasar} from "quasar";
+import {openURL, useQuasar} from "quasar";
 import {listResStruct} from "src/utils/struct";
 
-import {deleteWebsite, listWebsite, patchWebsite, putWebsite} from "src/api/website";
-import {openURL} from 'quasar'
-import {errorLoading, hideLoading, requestLoading, showLoading} from "src/utils/loading";
+import {deleteWebsite, listWebsite, putWebsite} from "src/api/website";
+import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
+import {doApplication} from "src/api/application";
 
 let $q;
 
@@ -194,7 +193,6 @@ export default {
   components: {NewWebsite},
   setup() {
     $q = useQuasar()
-
     const tableData = ref(listResStruct())
     const params = ref({
       'page': 1,
@@ -250,7 +248,7 @@ export default {
       row.ssl_enable = !row.ssl_enable
       let data = toRaw(row)
       showLoading($q)
-      putWebsite(data.id + 1, data).then(res => {
+      putWebsite(data.id, data).then(res => {
         console.log({'putWebsite': res})
       }).catch(err => {
         errorLoading($q, err)
@@ -261,17 +259,25 @@ export default {
       })
     }
 
-    onMounted(() => {
+    function requestApplicationAction(action) {
+      showLoading($q)
+      doApplication(tableSelected.value[0].id, action).then((res) => {
+      }).catch(err => {
+        errorLoading($q, err)
+      }).finally(() => {
+        hideLoading($q)
+      })
+    }
 
+    onMounted(() => {
       tableData.value.data = []
       nextTick(() => {
         requestInstance()
       })
-
     })
     return {
       tableData, params, tableSelected, onSearch, onUpdatePagination, columns,
-      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite
+      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite,requestApplicationAction
     }
   }
 }

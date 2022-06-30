@@ -124,9 +124,6 @@ const __option = {
 }
 
 
-
-
-
 export default {
   name: "NetworkTrafficChart",
   components: {
@@ -163,13 +160,10 @@ export default {
         }
         websocket.send(JSON.stringify(query))
       } else {
-
         let net_interface = data.message.out[0]
-        console.log({"NetworkTrafficChart": net_interface})
         let xData = ui.value.option.xAxis.data
         let INData = ui.value.option.series[0].data
         let OUTData = ui.value.option.series[1].data
-
         let lasted = ui.value.lasted
 
         if (lasted.oBytes == null) {

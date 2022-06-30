@@ -55,7 +55,7 @@ module.exports = configure(function (ctx) {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       env: {
         API: ctx.dev
-          ? 'http://35.78.82.158:8000/'
+          ? 'http://35.78.82.158:8000'
           //? 'https://n2ray-api.nesnode.com'
           : 'https://n2ray-api.nesnode.com'
       },

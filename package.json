@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.14.0",
+    "ace-builds": "^1.7.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "echarts": "^5.3.2",
@@ -21,6 +22,7 @@
     "vue-echarts": "^6.0.3",
     "vue-i18n": "^9.2.0-beta.35",
     "vue-router": "^4.0.0",
+    "vue3-ace-editor": "^2.2.2",
     "xterm": "^4.18.0",
     "xterm-addon-fit": "^0.5.0",
     "xterm-addon-web-links": "^0.5.1"
