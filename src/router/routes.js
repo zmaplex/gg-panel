@@ -21,7 +21,11 @@ const routes = [
     children: [
       {path: '', name: 'MainIndex', component: () => import('pages/IndexPage.vue')},
       {
-        path: "website", name: 'website', component: () => import('pages/WebsitePage/WebsiteIndex.vue')
+        path: "website", name: 'website', component: () => import('pages/WebsitePage/WebsiteIndex.vue'),
+      }, {
+        path: "websiteSettings",
+        name: 'websiteSettings',
+        component: () => import('pages/WebsitePage/WebsiteSettings.vue'),
       },
       {
         path: "overview", name: 'overview', component: () => import('pages/OverviewPage/OverviewIndex.vue')

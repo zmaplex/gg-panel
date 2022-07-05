@@ -15,8 +15,10 @@
   <div class="flex justify-between">
     <div class="q-gutter-sm">
       <q-btn :label="$t('new website')" color="blue" icon="add" @click="ui.NewWebsiteDialog.show = true"></q-btn>
-      <q-btn v-if="ui.StartWebsiteBtn.show" @click="requestApplicationAction('start')" :label="$t('start')" color="green" icon="play_arrow"></q-btn>
-      <q-btn v-if="ui.StopWebsiteBtn.show"  @click="requestApplicationAction('stop')"  :label="$t('stop')" color="grey" icon="stop"></q-btn>
+      <q-btn v-if="ui.StartWebsiteBtn.show" :label="$t('start')" color="green"
+             icon="play_arrow" @click="requestApplicationAction('start')"></q-btn>
+      <q-btn v-if="ui.StopWebsiteBtn.show" :label="$t('stop')" color="grey" icon="stop"
+             @click="requestApplicationAction('stop')"></q-btn>
       <q-btn v-if="ui.DeleteWebsiteBtn.show" :label="$t('delete')" color="red" icon="delete"
              @click="requestDeleteWebsite"></q-btn>
     </div>
@@ -51,8 +53,9 @@
     <template v-slot:body-cell-domain="props">
       <q-td :props="props">
         <div class="flex justify-start items-center q-gutter-sm no-wrap" style="cursor: pointer">
-          <div @click="Public.opendomain(props.row.enableSSL,props.value)">{{ props.value }}</div>
-          <q-icon color="blue-grey" name="public" @click="Public.opendomain(props.row.enableSSL,props.value)"></q-icon>
+          <div @click="Public.openDomain(props.row.ssl_enable,props.value)">{{ props.value }}</div>
+          <q-icon :color="props.row.ssl_enable ?'green' :'blue-grey'" name="public"
+                  @click="Public.openDomain(props.row.ssl_enable,props.value)"></q-icon>
         </div>
 
       </q-td>
@@ -62,7 +65,8 @@
       <q-td :props="props">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
           <div>{{ props.value ? props.value.replace('Application', '') : '' }}</div>
-          <q-icon color="blue-grey" name="o_settings" @click="Public.alert('settings')"></q-icon>
+
+          <q-icon color="blue-grey" name="o_settings" @click="toWebsiteSettings(props.key)"></q-icon>
         </div>
 
       </q-td>
@@ -94,7 +98,7 @@
     </template>
 
     <template v-slot:body-cell-ssl="props">
-      <q-td :props="props" @click="Public.alert(props.value)">
+      <q-td :props="props">
         <div class="flex justify-end items-center q-gutter-sm" style="cursor: pointer">
           <q-toggle :model-value="props.row.ssl_enable" checkedIcon="enhanced_encryption"
                     color="green"
@@ -129,6 +133,7 @@ import {listResStruct} from "src/utils/struct";
 import {deleteWebsite, listWebsite, putWebsite} from "src/api/website";
 import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
 import {doApplication} from "src/api/application";
+import {useRouter} from "vue-router";
 
 let $q;
 
@@ -177,7 +182,8 @@ const Public = {
     }
   },
 
-  opendomain(enableSSL, domain) {
+  openDomain(enableSSL, domain) {
+
     let url = "http://" + domain
     if (enableSSL) {
       url = "https://" + domain
@@ -193,6 +199,7 @@ export default {
   components: {NewWebsite},
   setup() {
     $q = useQuasar()
+    const router = useRouter()
     const tableData = ref(listResStruct())
     const params = ref({
       'page': 1,
@@ -206,6 +213,10 @@ export default {
       ui.value.StopWebsiteBtn.show = _bool
       ui.value.StartWebsiteBtn.show = _bool
     })
+
+    function toWebsiteSettings(id){
+      router.push({"name":"websiteSettings",params:{"id":id}})
+    }
 
     function onUpdatePagination(page) {
       params.value.page = page
@@ -228,6 +239,7 @@ export default {
       }).finally(() => {
         nextTick(() => {
           tableData.value.pagination.loading = false
+          tableSelected.value = []
         })
       })
     }
@@ -266,6 +278,7 @@ export default {
         errorLoading($q, err)
       }).finally(() => {
         hideLoading($q)
+
       })
     }
 
@@ -277,7 +290,7 @@ export default {
     })
     return {
       tableData, params, tableSelected, onSearch, onUpdatePagination, columns,
-      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite,requestApplicationAction
+      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite, requestApplicationAction,toWebsiteSettings
     }
   }
 }

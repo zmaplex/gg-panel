@@ -124,11 +124,11 @@
 
 
 <script>
-import {computed, onMounted, onUnmounted, ref, toRaw, watchEffect} from "vue";
+import {onMounted, onUnmounted, ref, toRaw, watchEffect} from "vue";
 import {createWebsite, listApplication} from "src/api/website";
 import {userInfo} from "src/utils/struct";
 import {generateDBPassword} from "src/utils/generate";
-import {hideLoading, showLoading} from "src/utils/loading";
+import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
 import {useQuasar} from "quasar";
 import {createDataBaseInstance, createNewDatabase} from "src/api/database";
 
@@ -193,6 +193,7 @@ const _data = {
       domain: '',
       ssl_enable: false,
       index_root: null,
+      application: null,
       application_config: {}
     },
     dataBaseForm: {
@@ -206,52 +207,52 @@ const _data = {
   applicationForm: {}
 }
 
-const data = ref(_data)
-
-const Public = {
-
-  onSelectApplication(name) {
-    console.log({onSelectApplication: name})
-    let app = ui.value.card_0.application
-    ui.value.card_0.description = app.data[name].info.description
-
-    ui.value.application.key = name
-    ui.value.application.name = app.data[name].info.name
-    ui.value.application.parameter = app.data[name].attr
-
-    for (let item of ui.value.application.parameter) {
-      data.value.form.websiteForm.application_config[item.name] = item.value
-    }
-
-
-  },
-
-  requestListApplication() {
-    let card = ui.value.card_0
-    card.loading = true
-    listApplication().then(res => {
-      for (let _key in res) {
-        let item = res[_key]
-        console.log(item)
-        card.application.options.push({
-          label: item.info.name,
-          value: _key
-        })
-      }
-      card.application.data = res
-
-    }).catch(err => {
-    }).finally(() => {
-      card.loading = false
-    })
-  }
-}
-
 
 export default {
   name: "NewWebsite",
   setup() {
     const $q = useQuasar()
+    const data = ref(_data)
+
+    const Public = {
+
+      onSelectApplication(name) {
+        console.log({onSelectApplication: name})
+        let app = ui.value.card_0.application
+        ui.value.card_0.description = app.data[name].info.description
+
+        ui.value.application.key = name
+        ui.value.application.name = app.data[name].info.name
+        ui.value.application.parameter = app.data[name].attr
+        data.value.form.websiteForm.application = name
+        for (let item of ui.value.application.parameter) {
+          data.value.form.websiteForm.application_config[item.name] = item.value
+        }
+
+
+      },
+
+      requestListApplication() {
+        let card = ui.value.card_0
+        card.loading = true
+        listApplication().then(res => {
+          for (let _key in res) {
+            let item = res[_key]
+            console.log(item)
+            card.application.options.push({
+              label: item.info.name,
+              value: _key
+            })
+          }
+          card.application.data = res
+
+        }).catch(err => {
+          errorLoading($q, err)
+        }).finally(() => {
+          card.loading = false
+        })
+      }
+    }
     onMounted(() => {
       console.log("init NewWebsite component")
       console.log(userInfo())
@@ -295,16 +296,13 @@ export default {
         let websiteId = res.id
         let database = toRaw(data.value.form.dataBaseForm)
         database["website"] = websiteId
-
         if (ui.value.card_1.createDatabaseToggle) {
           let dbRes = await createNewDatabase(database)
           console.log({'dbRes': dbRes})
           await createDataBaseInstance(dbRes.id)
         }
-
-
       }).catch(err => {
-        console.log({"commitFormData": err})
+        errorLoading($q, err)
       }).finally(() => {
         hideLoading($q)
       })

@@ -235,7 +235,7 @@ let _cert = {
   "serial_number_hex": "3C:7C:32:A9:55:76:C1:8C:F2:47:20:3D:A6:58:80:9A:EE"
 }
 export default {
-  name: "WebsiteSettings",
+  name: "WebsiteSettingsDev",
   components: {WebServerConfig},
   setup() {
     const $q = useQuasar()

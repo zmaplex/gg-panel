@@ -6,12 +6,21 @@
         <q-btn v-close-popup dense flat icon="close"></q-btn>
       </q-card-section>
       <q-card-section>
-        <div class="text-capitalize">
+        <div class="text-body1 text-capitalize q-mb-md">
           {{ $t('message') }} : {{ data.message }}
         </div>
 
-        <textarea v-model="data.response" class=" err_textarea" readonly rows="12">
+        <div v-if="data.code!==500">
+             <textarea v-model="data.response" class=" err_textarea" readonly rows="12">
             </textarea>
+        </div>
+
+        <div class="q-pa-sm bg-blue-grey-1" v-else>
+
+          <div v-html="data.response.data ">
+
+          </div>
+        </div>
       </q-card-section>
       <q-card-actions></q-card-actions>
     </q-card>
@@ -19,7 +28,8 @@
 </template>
 
 <script>
-import {ref} from "vue";
+
+import {toRaw} from "vue";
 
 export default {
   name: "ErrorDialog",
@@ -32,18 +42,27 @@ export default {
   setup(props) {
 
     let response = ''
-    if (props.err.hasOwnProperty('response')) {
-      response = JSON.stringify(props.err.response, null, 2)
-    } else if (props.err) {
-      response = JSON.stringify(props.err, null, 2)
+    let code = 1
+    let err = toRaw(props.err)
+    console.info({"err":err})
+    if (props.err.hasOwnProperty('response') && props.err.response) {
+      code = err.response.status
+      if (code >= 500) {
+        response = err.response
+      } else {
+        response = JSON.stringify(err.response, null, 2)
+      }
+    } else if (err) {
+      response = JSON.stringify(err, null, 2)
     } else {
       response = '{}'
     }
 
-    let data = ref({
+    let data = {
       'message': props.err.message,
-      'response': response
-    })
+      'response': response,
+      'code': code
+    }
     return {
       props, data
     }
@@ -57,7 +76,7 @@ export default {
   min-height: 100px;
   min-width: 300px;
   width: 100%;
-  max-width: 40vw;
+  max-width: 80vw;
 }
 
 .err_textarea {
