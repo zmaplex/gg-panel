@@ -58,7 +58,7 @@
             </div>
           </q-tab-panel>
           <q-tab-panel class="shadow-0" name="config">
-            <web-server-config :data="data.website.valid_web_server_config"></web-server-config>
+            <web-server-config :pk="data.website.id" :data="data.website.valid_web_server_config"></web-server-config>
           </q-tab-panel>
           <q-tab-panel name="ssl">
             <div v-if="data.website.ssl_enable">

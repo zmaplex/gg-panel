@@ -1,5 +1,4 @@
 import request from '../utils/request'
-import {ACCESS_TOKEN} from "src/utils/mutation-types";
 
 const api = {
   application: '/api/Application',
@@ -22,7 +21,7 @@ export function listWebsite(params) {
 
 }
 
-export function getWebsite(pk){
+export function getWebsite(pk) {
   return request({
     url: `${api.website}/${pk}/`
   })
@@ -35,7 +34,7 @@ export function deleteWebsite(pk) {
   })
 }
 
-export function getWebsiteCertificate(pk){
+export function getWebsiteCertificate(pk) {
   return request({
     url: `${api.website}/${pk}/get_ssl_info/`,
 
@@ -46,6 +45,16 @@ export function putWebsite(instance, data) {
   return request({
     url: `${api.website}/${instance}/`,
     method: 'put',
+    data: data
+  })
+
+}
+
+
+export function patchWebsite(instance, data) {
+  return request({
+    url: `${api.website}/${instance}/`,
+    method: 'patch',
     data: data
   })
 }

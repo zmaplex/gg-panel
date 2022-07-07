@@ -18,8 +18,8 @@
       />
     </q-card-section>
     <q-card-actions align="around" class="q-gutter-md">
-      <q-btn color="primary" icon="o_done" label="ok"></q-btn>
-      <q-btn color="blue-grey-2" icon="o_cancel" label="cancel" text-color="dark"></q-btn>
+      <q-btn color="primary" icon="o_done" label="ok" @click="requestPatchWebsite"></q-btn>
+
     </q-card-actions>
   </q-card>
 
@@ -31,12 +31,19 @@ import {VAceEditor} from "vue3-ace-editor/index";
 import 'ace-builds/src-noconflict/mode-nginx';
 import 'ace-builds/src-noconflict/theme-xcode';
 import {onMounted, onUnmounted, ref} from "vue";
+import {patchWebsite} from "src/api/website";
+import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
+import {useQuasar} from "quasar";
 
 
 export default {
   name: "WebServerConfig",
   components: {VAceEditor},
   props: {
+    pk: {
+      type: String,
+      default: "-1"
+    },
     lang: {
       type: String,
       default: 'nginx'
@@ -48,6 +55,7 @@ export default {
   },
   setup(props) {
     const content = ref('')
+    const $q = useQuasar()
     const ui = ref({
       errMsg: {
         show: false,
@@ -62,11 +70,28 @@ export default {
       content.value = ''
     })
 
+    function requestPatchWebsite() {
+      showLoading($q)
+
+      patchWebsite(props.pk, {"id": props.pk, 'valid_web_server_config': content.value}).then(res => {
+        content.value = res.valid_web_server_config
+      }).catch(err => {
+        errorLoading($q, err)
+        console.log(err.response.status)
+        if (err.response.status === 400) {
+          ui.value.errMsg.msg = err.response.data.valid_web_server_config
+          ui.value.errMsg.show = true
+        }
+      }).finally(() => {
+        hideLoading($q)
+      })
+    }
+
     function configContentChanged(data) {
       console.log(content.value)
     }
 
-    return {props, content, configContentChanged, ui}
+    return {props, content, configContentChanged, ui, requestPatchWebsite}
   }
 }
 </script>
