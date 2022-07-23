@@ -27,6 +27,10 @@
         <div class="flex justify-between q-gutter-sm" style="width: 100%">
           <div class="flex q-gutter-sm">
             <q-btn color="blue-grey" icon="o_add" @click="ui.DatabaseDialog.show=true"></q-btn>
+
+            <q-btn color="yellow-10" icon="o_login" type="a" :href="ui.PHPMyAdmin.url" target="_blank">
+              <q-tooltip>open phpmyadmin</q-tooltip>
+            </q-btn>
             <q-btn v-if="tableSelected.length===1" color="red" icon="o_remove"
                    @click="ui.DatabaseDialog.show=true"></q-btn>
             <q-btn v-if="tableSelected.length===1" color="blue-grey-2" icon="o_settings" text-color="dark"
@@ -53,7 +57,7 @@
           <div class="flex justify-end q-gutter-sm items-baseline">
             <div>{{ props.value }}</div>
             <div>
-              <q-icon name="o_settings" size="18px"></q-icon>
+              <q-icon name="o_settings" size="18px" @click="toDatabaseSettings(props.key)"></q-icon>
             </div>
           </div>
         </q-td>
@@ -119,12 +123,14 @@ import {listResStruct} from "src/utils/struct";
 import {createDataBaseInstance, listDatabase} from "src/api/database";
 import InputArea from "components/base/InputArea";
 import NewDatabase from "components/database/NewDatabase";
+import {useRouter} from "vue-router";
 
 
 export default {
   name: "DatabaseTable",
   components: {InputArea, NewDatabase},
   setup(props, {emit}) {
+    const router = useRouter()
 
     function t(msg) {
 
@@ -134,6 +140,9 @@ export default {
     const ui = ref({
       DatabaseDialog: {
         show: false
+      },
+      PHPMyAdmin:{
+        url :null
       }
     })
 
@@ -162,6 +171,12 @@ export default {
       requestInstance()
     }
 
+    function getPHPMyAdminUrl() {
+      let url = window.localStorage.getItem("api_url")
+      let domain = (new URL(url));
+      return domain.protocol + "//" + domain.hostname + ":8080"
+    }
+
     function requestCreateDatabaseInstance(pk) {
       createDataBaseInstance(pk).then(res => {
         requestInstance()
@@ -187,9 +202,15 @@ export default {
         }, 200)
       })
     }
+    function toDatabaseSettings(id){
+      console.log(id)
+      router.push({"name":"databaseSettings",params:{"id":id}})
+    }
+
 
     onMounted(() => {
       tableData.value.data = []
+      ui.value.PHPMyAdmin.url = getPHPMyAdminUrl()
       nextTick(() => {
         requestInstance()
       })
@@ -205,7 +226,8 @@ export default {
       columns,
       requestInstance,
       ui,
-      requestCreateDatabaseInstance
+      requestCreateDatabaseInstance,
+      toDatabaseSettings
     }
   }
 }

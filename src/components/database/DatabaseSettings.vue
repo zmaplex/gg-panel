@@ -18,14 +18,14 @@
     <q-separator/>
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="settings">
-        <div class="bg-blue-grey-1 flex justify-between q-pa-md items-center content-center rounded-borders">
-          <div class="text-body1 text-capitalize">{{ ui.database.data.name }} Settings</div>
-          <div>
-            <q-btn color="dark" flat icon="o_refresh" @click="requestGetDatabase"></q-btn>
-          </div>
-        </div>
-        <q-card class="apple-card">
 
+        <q-card class="apple-card">
+          <div class="bg-blue-grey-1 flex justify-between q-pa-md items-center content-center rounded-borders">
+            <div class="text-body1 text-capitalize">{{ ui.database.data.name }} Settings</div>
+            <div>
+              <q-btn color="dark" flat icon="o_refresh" @click="requestGetDatabase"></q-btn>
+            </div>
+          </div>
           <q-card-section>
             <q-input v-model="ui.database.data.name" color="dark" label="database name" readonly></q-input>
             <q-input v-model="ui.database.data.username" color="dark" label="username"></q-input>
@@ -112,7 +112,7 @@ import {getDownloadFileUrl, listDirectory, uploadFile} from "src/api/filebrowser
 
 
 export default {
-  name: "DataBaseSetting",
+  name: "DataBaseSettings",
   components: {},
   props: {
     pk: {
@@ -147,7 +147,7 @@ export default {
           "database_type_text": "MariaDB",
           "create_at": "2022-07-21T09:10:43.872892+08:00",
           "update_at": "2022-07-21T09:10:44.769107+08:00",
-          "name": "null",
+          "name": null,
           "username": "null",
           "password": "null",
           "database_type": 1,
@@ -212,8 +212,12 @@ export default {
     function requestGetDatabase() {
       showLoading($q)
       getDatabase(props.pk).then(res => {
-        console.log(res)
-        ui.value.database.data = res
+        if (ui.value.database.data.name == null) {
+          ui.value.database.data = res
+          requestListDirectory()
+        } else {
+          ui.value.database.data = res
+        }
       }).catch(err => {
         errorLoading($q, err)
       }).finally(() => {
@@ -254,9 +258,9 @@ export default {
       })
     }
 
-    onMounted(async () => {
-      await requestGetDatabase()
-      await requestListDirectory()
+    onMounted(() => {
+      requestGetDatabase()
+
     })
 
     return {

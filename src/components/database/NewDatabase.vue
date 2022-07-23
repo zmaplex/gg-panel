@@ -27,12 +27,20 @@
           <q-input
             v-model="data.newDatabaseForm.password"
             :rules="[val => val !== null && val !== '' || 'Please type this']"
+            :type="ui.isPwd ? 'password' : 'text'"
             color="dark"
             filled
             label="password *"
             lazy-rules
-            type="password"
-          />
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="ui.isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="ui.isPwd = !ui.isPwd"
+              />
+            </template>
+          </q-input>
 
         </q-form>
 
@@ -73,6 +81,7 @@
 <script>
 import {ref} from "vue";
 import {createDataBaseInstance, createNewDatabase} from "src/api/database";
+import {generateDBPassword} from "src/utils/generate";
 
 
 export default {
@@ -82,13 +91,14 @@ export default {
     const data = ref({
       newDatabaseForm: {
         name: null,
-        username: null,
-        password: null,
+        username: generateDBPassword(8),
+        password: generateDBPassword(8),
       }
     })
     const ui = ref({
       step: 'create',
-      errorMsg: ''
+      errorMsg: '',
+      isPwd: true,
     })
 
     const Public = {

@@ -32,6 +32,9 @@ const routes = [
       },
       {
         path: "database", name: 'database', component: () => import('pages/DatabasePage/DatabaseIndex.vue')
+      },
+      {
+        path: "databaseSettings", name: 'databaseSettings', component: () => import('pages/DatabasePage/DatabaseSettings.vue')
       }
     ]
   },
