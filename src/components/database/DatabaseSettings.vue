@@ -51,10 +51,7 @@
         <q-card class="apple-card">
           <div class="bg-blue-grey-1 flex justify-between q-pa-md items-center content-center rounded-borders">
             <div class="text-body1">Backups archive</div>
-
             <div class="flex q-gutter-sm">
-
-
               <q-btn flat icon="o_add" @click="requestExportBackup()">
                 <q-tooltip>Create a new backup</q-tooltip>
               </q-btn>

@@ -1,6 +1,6 @@
 <template>
   <!--  todo https://github.com/ajaxorg/ace -->
-  <div class="q-pa-md bg-blue-grey-1">
+  <q-page class="bg-blue-grey-1">
     <q-card class="shadow-0">
       <q-card-section class="bg-blue-grey-3 ">
         <div class="flex no-wrap justify-between ">
@@ -34,7 +34,7 @@
       </q-card-section>
 
     </q-card>
-  </div>
+  </q-page>
 
 </template>
 

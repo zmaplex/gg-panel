@@ -11,7 +11,9 @@
           @click="toggleLeftDrawer"
         />
 
+
         <q-toolbar-title>
+          <q-btn icon="arrow_back" flat @click="$router.back()"></q-btn>
 
         </q-toolbar-title>
 
@@ -22,7 +24,7 @@
     <q-drawer
       v-model="leftDrawerOpen"
       :width="256"
-      class="bg-blue-grey-1"
+      class="bg-grey-2"
       show-if-above
     >
       <q-list>
@@ -77,18 +79,24 @@ const linksList = [
 
   },
   {
-    title: 'database',
+    title: 'Database',
     caption: 'database',
     route: {
       name: 'database'
     },
-    icon: 'storage',
+    icon: 'sym_o_database',
 
   },
   {
-    title: 'Monitor',
-    caption: 'Monitor',
+    title: 'FileBrowser',
+    caption: 'FileBrowser',
     icon: 'donut_small',
+    route: {
+      name: 'fileBrowser',
+      params: {
+        'directory': '/'
+      }
+    },
 
   },
   {

@@ -2,7 +2,6 @@
 
 
   <q-page class="q-pa-sm q-gutter-md">
-
     <databaseTable></databaseTable>
   </q-page>
 

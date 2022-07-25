@@ -5,6 +5,37 @@ const api = {
 
 }
 
+
+export function getFileText(absPath) {
+  return request({
+    url: `${api.fileBrowser}/file_text_operating/`,
+    params: {
+      'abs_path': absPath
+    }
+  })
+}
+
+export function updateFileText(absPath, text) {
+  return request({
+    url: `${api.fileBrowser}/file_text_operating/`,
+    params: {
+      'abs_path': absPath
+    },
+    method: 'post',
+    data: {
+      'path': absPath,
+      'text': text
+    }
+  })
+}
+
+export function getUsers() {
+  return request({
+    url: `${api.fileBrowser}/get_users/`,
+
+  })
+}
+
 export function listDirectory(directory) {
   return request({
     url: `${api.fileBrowser}/query/`,
@@ -15,7 +46,19 @@ export function listDirectory(directory) {
 
 }
 
-export function getDownloadFileUrl(absPath){
+export function executeCMD(data) {
+  /*
+  * {current_directory:'',operation_command:''}
+  * */
+  return request({
+    url: `${api.fileBrowser}/cmd/`,
+    method: 'post',
+    data: data
+
+  })
+}
+
+export function getDownloadFileUrl(absPath) {
   return request.getUri({
     url: request.defaults.baseURL + `api/FileBrowser/download_file/`,
     params: {
@@ -33,7 +76,7 @@ export function uploadFile(directory, file) {
       "directory": directory
     },
     method: 'post',
-    data:formData,
+    data: formData,
     headers: {
       'Content-Type': 'multipart/form-data'
     }

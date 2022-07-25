@@ -34,7 +34,17 @@ const routes = [
         path: "database", name: 'database', component: () => import('pages/DatabasePage/DatabaseIndex.vue')
       },
       {
-        path: "databaseSettings", name: 'databaseSettings', component: () => import('pages/DatabasePage/DatabaseSettings.vue')
+        path: "databaseSettings",
+        name: 'databaseSettings',
+        component: () => import('pages/DatabasePage/DatabaseSettings.vue')
+      },
+      {
+        path: "fileBrowser/:directory", name: 'fileBrowser', component: () => import('pages/FileBrowserPage/FileBrowser.vue')
+      },
+      {
+        path: "plainTextEditing/:path",
+        name: 'plainTextEditing',
+        component: () => import('pages/CommonPage/PlainTextEditing.vue')
       }
     ]
   },

@@ -28,7 +28,7 @@ let _request = () => {
   let request = axios.create({
     // API 请求的默认前缀
     baseURL: api,
-    timeout: 30000 // 请求超时时间
+    timeout: 10 * 60 * 1000 // 请求超时时间
   })
   request.interceptors.request.use(config => {
     const token = Cookies.get(ACCESS_TOKEN)
