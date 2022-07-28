@@ -1,6 +1,6 @@
 <template>
 
-  <q-card v-if="data.website" class="shadow-0">
+  <q-card v-if="data.website" class="shadow-0 q-pa-none">
     <q-tabs
       v-model="tab"
       align="justify"
@@ -47,9 +47,11 @@
         <div>
           <div class="text-body1 text-capitalize"> path</div>
           <div class="q-gutter-sm">
-            <q-input v-model="data.website.index_root" color="dark" dense label="folder" readonly>
+            <q-input v-model="data.website.index_root"
+                     color="dark" dense label="folder" readonly>
               <template v-slot:append>
-                <q-icon name="o_open_in_new"></q-icon>
+                <q-btn :to="{name: 'fileBrowser',params: {'directory': data.website.index_root}}" icon="o_open_in_new"
+                       flat></q-btn>
               </template>
             </q-input>
 

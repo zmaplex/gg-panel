@@ -76,7 +76,28 @@
             hide-
             row-key="path"
           >
+            <template v-slot:body-cell-path="props">
+              <q-td :props="props">
+                <div class="flex q-gutter-sm no-wrap items-center">
+                  <div>
+                    <q-btn dense flat icon="o_folder" @click="enterFolder(props.value)">
+                      <q-tooltip>
+                        Open the directory where the file is located.
+                      </q-tooltip>
+                    </q-btn>
+                    <q-btn dense flat icon="o_edit_note" @click="editFile(props.value)">
+                      <q-tooltip>
+                        Edit this file.
+                      </q-tooltip>
+                    </q-btn>
+                  </div>
+                  <div>
+                    {{ props.value }}
+                  </div>
+                </div>
 
+              </q-td>
+            </template>
             <template v-slot:body-cell-action="props">
               <q-td :props="props">
                 <q-btn color="info" flat icon="o_rotate_left" label="recover" no-caps
@@ -85,7 +106,6 @@
                        no-caps target="_blank" type="a"></q-btn>
               </q-td>
             </template>
-
           </q-table>
 
         </q-card>
@@ -106,6 +126,7 @@ import {exportBackup, getDatabase, importBackup, updateDatabase} from "src/api/d
 import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
 import {date, format, useQuasar} from "quasar";
 import {getDownloadFileUrl, listDirectory, uploadFile} from "src/api/filebrowser";
+import {useRouter} from "vue-router";
 
 
 export default {
@@ -117,7 +138,7 @@ export default {
       required: true
     }
   },
-  setup(props) {
+  setup: function (props) {
     const columns = [
       {name: 'filename', label: 'filename', align: 'left', field: 'filename',},
       {name: 'size', label: 'size', align: 'left', field: 'size', format: val => format.humanStorageSize(val)},
@@ -162,6 +183,8 @@ export default {
       }
 
     })
+
+    const router = useRouter()
 
     function requestUpdateDatabase() {
       showLoading($q)
@@ -255,6 +278,29 @@ export default {
       })
     }
 
+    function editFile(path) {
+      router.push({
+        name: "plainTextEditing",
+        params: {
+          'path': path
+        }
+      })
+    }
+    function enterFolder(path) {
+      let arrPath = path.split('/')
+      arrPath.pop(-1)
+      if (path.endsWith("/")) {
+        arrPath.pop(-1)
+      }
+      let folder = arrPath.join("/")
+      router.push({
+        name: 'fileBrowser',
+        params: {
+          'directory': folder
+        }
+      })
+    }
+
     onMounted(() => {
       requestGetDatabase()
 
@@ -269,7 +315,7 @@ export default {
       humanStorageSize,
       date,
       requestUploadFile,
-      columns, tableData, requestDownloadFile, requestExportBackup, requestImportBackup
+      columns, tableData, requestDownloadFile, requestExportBackup, requestImportBackup, enterFolder,editFile
     }
   }
 }

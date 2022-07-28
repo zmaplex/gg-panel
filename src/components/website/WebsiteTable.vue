@@ -88,7 +88,7 @@
       </q-td>
     </template>
     <template v-slot:body-cell-path="props">
-      <q-td :props="props" @click="Public.alert(props.value.id)">
+      <q-td :props="props" @click="enterFolder(props.value)">
         <div class="flex justify-end items-center q-gutter-sm no-wrap" style="cursor: pointer">
           <div>{{ props.value }}</div>
           <q-icon color="blue-grey" name="o_folder"></q-icon>
@@ -218,6 +218,16 @@ export default {
       router.push({"name":"websiteSettings",params:{"id":id}})
     }
 
+    function enterFolder(path) {
+
+      router.push({
+        name: 'fileBrowser',
+        params: {
+          'directory': path
+        }
+      })
+    }
+
     function onUpdatePagination(page) {
       params.value.page = page
       requestInstance()
@@ -290,7 +300,7 @@ export default {
     })
     return {
       tableData, params, tableSelected, onSearch, onUpdatePagination, columns,
-      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite, requestApplicationAction,toWebsiteSettings
+      ui, Public, requestInstance, requestPutWebsite, requestDeleteWebsite, requestApplicationAction,toWebsiteSettings,enterFolder
     }
   }
 }

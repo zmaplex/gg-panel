@@ -23,7 +23,7 @@ const routes = [
       {
         path: "website", name: 'website', component: () => import('pages/WebsitePage/WebsiteIndex.vue'),
       }, {
-        path: "websiteSettings",
+        path: "websiteSettings/:id",
         name: 'websiteSettings',
         component: () => import('pages/WebsitePage/WebsiteSettings.vue'),
       },
@@ -34,7 +34,7 @@ const routes = [
         path: "database", name: 'database', component: () => import('pages/DatabasePage/DatabaseIndex.vue')
       },
       {
-        path: "databaseSettings",
+        path: "databaseSettings/:id",
         name: 'databaseSettings',
         component: () => import('pages/DatabasePage/DatabaseSettings.vue')
       },

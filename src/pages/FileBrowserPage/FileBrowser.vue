@@ -8,6 +8,11 @@
             <q-btn dense flat icon="home" @click="backToPrevious('/')"></q-btn>
             <q-btn :disable="params.directory==='/'" dense flat icon="o_arrow_back" @click="backToPrevious()"></q-btn>
           </template>
+          <template v-slot:append>
+            <q-btn color="dark" icon="o_refresh" flat @click="enterDirectory"></q-btn>
+            <div style="width: 8px"></div>
+          </template>
+
         </q-input>
         <q-input v-model="params.operation_command" clearable color="white" label="cmd" standout
                  style="width: 50%" @keydown.enter="requestExecuteCMD"></q-input>
@@ -39,6 +44,7 @@
               <template v-slot:after>
                 <q-btn :disable="uploadFileData==null" flat icon="o_upload" @click="requestUploadFile"></q-btn>
               </template>
+
             </q-file>
 
           </div>
@@ -178,6 +184,9 @@ export default {
       tableData.value.pagination.loading = true
       // requestXXXX 替换为实际的函数
       listDirectory(params.value.directory).then(res => {
+        if (!users.hasOwnProperty("0")) {
+          getUsers()
+        }
         tableData.value.results = res
       }).catch(err => {
 

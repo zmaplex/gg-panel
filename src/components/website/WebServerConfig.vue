@@ -1,7 +1,7 @@
 <template>
   <!--  todo https://github.com/ajaxorg/ace -->
-  <q-card class="shadow-0 rounded-borders" style="min-width: 360px">
-    <q-card-section>
+  <q-card class="shadow-0 rounded-borders q-pa-none">
+    <q-card-section class="q-pa-none">
       <q-banner v-if="ui.errMsg.show" class="bg-warning">
         <div class="flex justify-between items-center">
           <div>{{ ui.errMsg.msg }}</div>
@@ -12,8 +12,10 @@
       <v-ace-editor
         v-model:value="content"
         :lang="props.lang"
-        style="min-height:600px;"
-        theme="xcode"
+        :options="ui.aceOption"
+        style="min-height:calc(100vh - 180px)"
+        theme="dracula"
+        :print-margin="false"
         @change="configContentChanged"
       />
     </q-card-section>
@@ -30,10 +32,16 @@
 import {VAceEditor} from "vue3-ace-editor/index";
 import 'ace-builds/src-noconflict/mode-nginx';
 import 'ace-builds/src-noconflict/theme-xcode';
+import 'ace-builds/src-noconflict/theme-dracula';
+import workerJsonUrl from 'file-loader?esModule=false!ace-builds/src-noconflict/worker-json.js';
+
 import {onMounted, onUnmounted, ref} from "vue";
 import {patchWebsite} from "src/api/website";
 import {errorLoading, hideLoading, showLoading} from "src/utils/loading";
 import {useQuasar} from "quasar";
+import ace from "ace-builds";
+
+ace.config.setModuleUrl('ace/mode/json_worker', workerJsonUrl);
 
 
 export default {
@@ -60,6 +68,11 @@ export default {
       errMsg: {
         show: false,
         msg: 'Oops...'
+      },
+      aceOption: {
+        fontSize: '18px',
+        useWorker: true,
+        wrap: true
       }
     })
     onMounted(() => {
