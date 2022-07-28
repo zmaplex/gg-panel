@@ -1,8 +1,8 @@
 {
-  "name": "gg-panel",
+  "name": "ui-ssh",
   "version": "0.0.1",
-  "description": "A GGDashboard Project",
-  "productName": "GGDashboard",
+  "description": "A UI-SSH Project",
+  "productName": "UI-SSH",
   "author": "z <zmaplex@gmail.com>",
   "private": true,
   "scripts": {

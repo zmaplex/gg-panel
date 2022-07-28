@@ -62,6 +62,7 @@ import 'ace-builds/src-noconflict/mode-nginx';
 import 'ace-builds/src-noconflict/mode-text';
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-html';
+import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/mode-css';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-php';

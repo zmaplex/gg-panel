@@ -4,6 +4,7 @@ const DEFAULT = {
   'sql': 'sql',
   'css': 'css',
   'html': 'html',
+  'md': 'markdown'
 }
 const NGINX = {
   'config': 'nginx',
@@ -11,7 +12,6 @@ const NGINX = {
 }
 const OSQUERY = {
   'history': 'sql',
-
 }
 
 const Map = {
@@ -26,15 +26,13 @@ function getMap(path) {
     }
   }
   return DEFAULT
-
 }
 
 
 export function detection(path) {
   let _map = getMap(path)
-  console.log(_map)
   for (const e in _map) {
-    if (path.endsWith("." + e)) {
+    if (path.toLowerCase().endsWith("." + e)) {
       return _map[e]
     }
   }
